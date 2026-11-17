@@ -1,0 +1,15 @@
+﻿bin/
+obj/
+out/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.log
+logs/
+TestResults/
+coverage/
+*.trx
+.DS_Store
+Thumbs.db

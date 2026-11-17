@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StrideGuard.API/StrideGuard.API.csproj" />
+    <Project Path="src/StrideGuard.Application/StrideGuard.Application.csproj" />
+    <Project Path="src/StrideGuard.Domain/StrideGuard.Domain.csproj" />
+    <Project Path="src/StrideGuard.Infrastructure/StrideGuard.Infrastructure.csproj" />
+    <Project Path="src/StrideGuard.Tests/StrideGuard.Tests.csproj" />
+  </Folder>
+</Solution>

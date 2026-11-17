@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StrideGuard | Threat Modeling STRIDE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
+
+  <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded font-bold text-sm">STRIDE</span>
+      <h1 class="text-xl font-bold tracking-tight">StrideGuard <span class="text-slate-400 font-normal text-sm">| Threat Modeling Platform</span></h1>
+    </div>
+    <div id="userBar" class="hidden flex items-center gap-4">
+      <a href="/swagger" target="_blank" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded text-emerald-400 border border-slate-700">Swagger API</a>
+      <span id="userName" class="text-sm text-slate-300"></span>
+      <button onclick="logout()" class="bg-rose-600 hover:bg-rose-500 px-3 py-1.5 rounded text-sm font-medium">Sair</button>
+    </div>
+  </nav>
+
+  <div id="alertBox" class="hidden max-w-5xl mx-auto mt-4 px-4">
+    <div id="alertContent" class="p-4 rounded-lg border text-sm font-medium"></div>
+  </div>
+
+  <main id="authSection" class="max-w-md mx-auto mt-16 bg-slate-900 border border-slate-800 p-8 rounded-xl shadow-2xl">
+    <h2 class="text-2xl font-bold mb-2">Acesso ao Sistema</h2>
+    <p class="text-slate-400 text-sm mb-6">Autentique-se para gerenciar modelos de ameaças STRIDE.</p>
+
+    <div class="space-y-4">
+      <div id="nomeField" class="hidden">
+        <label class="block text-xs uppercase text-slate-400 mb-1">Nome Completo</label>
+        <input id="regNome" type="text" placeholder="Ex: Paulo Aguiar" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase text-slate-400 mb-1">E-mail</label>
+        <input id="email" type="email" value="arquiteto@strideguard.com" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase text-slate-400 mb-1">Senha</label>
+        <input id="senha" type="password" value="Stride@123" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+
+      <button id="btnSubmitAuth" onclick="autenticar()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-2.5 rounded-lg font-semibold text-sm transition">
+        Entrar
+      </button>
+
+      <p class="text-center text-xs text-slate-400 pt-2">
+        <span id="toggleText">Não tem conta?</span>
+        <button onclick="toggleAuthMode()" id="toggleBtn" class="text-emerald-400 hover:underline font-medium ml-1">Criar conta</button>
+      </p>
+    </div>
+  </main>
+
+  <main id="appSection" class="hidden max-w-6xl mx-auto p-6 space-y-6">
+    <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex flex-wrap gap-3 items-end">
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-xs text-slate-400 mb-1">Novo Projeto / Arquitetura</label>
+        <input id="projNome" type="text" placeholder="Ex: Portal de Telemedicina" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div class="flex-1 min-w-[250px]">
+        <label class="block text-xs text-slate-400 mb-1">Descrição do Escopo</label>
+        <input id="projDesc" type="text" placeholder="Sistema web para prontuários médicos" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <button onclick="criarProjeto()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg text-sm font-semibold">+ Criar Projeto</button>
+    </div>
+
+    <div id="listaProjetos" class="grid md:grid-cols-3 gap-4"></div>
+
+    <div id="detalheProjeto" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-xl space-y-6">
+      <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-4">
+        <div>
+          <h3 id="detTitulo" class="text-xl font-bold text-emerald-400"></h3>
+          <p id="detDesc" class="text-sm text-slate-400"></p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="executarMotorStride()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
+            ⚡ Executar Motor STRIDE
+          </button>
+          <button onclick="excluirProjetoAtual()" class="bg-rose-900/60 hover:bg-rose-700 border border-rose-700 px-3 py-2 rounded-lg text-sm">
+            Excluir Projeto
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex flex-wrap gap-3 items-end">
+        <div class="flex-1 min-w-[180px]">
+          <label class="block text-xs text-slate-400 mb-1">Componente Arquitetural</label>
+          <input id="compNome" type="text" placeholder="Ex: Auth Service / SQL Server" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Tipo</label>
+          <select id="compTipo" class="bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm">
+            <option value="ApiRest">API REST</option>
+            <option value="BancoDeDados">Banco de Dados</option>
+            <option value="AutenticacaoIdP">Autenticação / IdP</option>
+            <option value="FrontendSpa">Frontend SPA</option>
+            <option value="MensageriaFila">Mensageria / Fila</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Fronteira de Confiança</label>
+          <select id="compFronteira" class="bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm">
+            <option value="InternetPublica">Internet Pública</option>
+            <option value="Dmz">DMZ</option>
+            <option value="RedeInterna">Rede Interna</option>
+          </select>
+        </div>
+        <button onclick="adicionarComponente()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm font-medium">+ Componente</button>
+      </div>
+
+      <div id="listaComponentes" class="flex flex-wrap gap-2"></div>
+
+      <div>
+        <h4 class="font-semibold mb-3 text-slate-200">Ameaças Identificadas (STRIDE)</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase">
+                <th class="py-2 px-3">Categoria</th>
+                <th class="py-2 px-3">Ameaça / Componente</th>
+                <th class="py-2 px-3">Risco</th>
+                <th class="py-2 px-3">Status</th>
+                <th class="py-2 px-3 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaAmeacas" class="divide-y divide-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = "/api";
+    let isRegister = false;
+    let projetoAtualId = null;
+
+    function showAlert(msg, isError = true) {
+      const box = document.getElementById("alertBox");
+      const content = document.getElementById("alertContent");
+      box.classList.remove("hidden");
+      content.className = isError
+        ? "p-4 rounded-lg border border-rose-500/50 bg-rose-950/80 text-rose-200 text-sm"
+        : "p-4 rounded-lg border border-emerald-500/50 bg-emerald-950/80 text-emerald-200 text-sm";
+      content.textContent = msg;
+      setTimeout(() => box.classList.add("hidden"), 6000);
+    }
+
+    function toggleAuthMode() {
+      isRegister = !isRegister;
+      document.getElementById("nomeField").classList.toggle("hidden", !isRegister);
+      document.getElementById("btnSubmitAuth").textContent = isRegister ? "Registrar e Entrar" : "Entrar";
+      document.getElementById("toggleText").textContent = isRegister ? "Já possui conta?" : "Não tem conta?";
+      document.getElementById("toggleBtn").textContent = isRegister ? "Fazer Login" : "Criar conta";
+    }
+
+    async function apiFetch(endpoint, options = {}) {
+      const token = localStorage.getItem("jwt");
+      const headers = { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+      const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+      if (res.status === 204) return null;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || data.title || "Erro na requisição");
+      return data;
+    }
+
+    async function autenticar() {
+      try {
+        const email = document.getElementById("email").value;
+        const senha = document.getElementById("senha").value;
+        const nome = document.getElementById("regNome").value;
+        const endpoint = isRegister ? "/auth/registrar" : "/auth/login";
+        const body = isRegister ? { nome, email, senha } : { email, senha };
+
+        const data = await apiFetch(endpoint, { method: "POST", body: JSON.stringify(body) });
+        localStorage.setItem("jwt", data.token);
+        localStorage.setItem("userName", data.nome);
+        iniciarSessao();
+      } catch (e) { showAlert(e.message); }
+    }
+
+    function iniciarSessao() {
+      const token = localStorage.getItem("jwt");
+      if (!token) return;
+      document.getElementById("authSection").classList.add("hidden");
+      document.getElementById("appSection").classList.remove("hidden");
+      document.getElementById("userBar").classList.remove("hidden");
+      document.getElementById("userName").textContent = `Olá, ${localStorage.getItem("userName")}`;
+      carregarProjetos();
+    }
+
+    function logout() {
+      localStorage.clear();
+      location.reload();
+    }
+
+    async function carregarProjetos() {
+      try {
+        const projetos = await apiFetch("/projetos");
+        const container = document.getElementById("listaProjetos");
+        container.innerHTML = projetos.map(p => `
+          <div onclick="abrirProjeto('${p.id}')" class="cursor-pointer bg-slate-900 hover:border-emerald-500/60 border border-slate-800 p-4 rounded-xl transition">
+            <h4 class="font-bold text-slate-100">${p.nome}</h4>
+            <p class="text-xs text-slate-400 mt-1 line-clamp-2">${p.descricao || "Sem descrição"}</p>
+            <div class="flex gap-3 mt-4 text-xs text-slate-300">
+              <span class="bg-slate-800 px-2 py-1 rounded">📦 ${p.totalComponentes} Comp.</span>
+              <span class="bg-rose-950 text-rose-300 px-2 py-1 rounded">⚠️ ${p.totalAmeacas} Ameaças</span>
+            </div>
+          </div>
+        `).join("");
+      } catch (e) { showAlert(e.message); }
+    }
+
+    async function criarProjeto() {
+      try {
+        const nome = document.getElementById("projNome").value;
+        const descricao = document.getElementById("projDesc").value;
+        await apiFetch("/projetos", { method: "POST", body: JSON.stringify({ nome, descricao }) });
+        document.getElementById("projNome").value = "";
+        document.getElementById("projDesc").value = "";
+        showAlert("Projeto criado com sucesso!", false);
+        carregarProjetos();
+      } catch (e) { showAlert(e.message); }
+    }
+
+    async function abrirProjeto(id) {
+      try {
+        projetoAtualId = id;
+        const det = await apiFetch(`/projetos/${id}`);
+        document.getElementById("detalheProjeto").classList.remove("hidden");
+        document.getElementById("detTitulo").textContent = det.nome;
+        document.getElementById("detDesc").textContent = det.descricao;
+
+        document.getElementById("listaComponentes").innerHTML = det.componentes.map(c => `
+          <span class="bg-slate-800 border border-slate-700 text-xs px-3 py-1.5 rounded-full">
+            <strong>${c.nome}</strong> (${c.tipo} • ${c.fronteiraConfianca})
+          </span>
+        `).join("");
+
+        document.getElementById("tabelaAmeacas").innerHTML = det.ameacas.map(a => `
+          <tr>
+            <td class="py-3 px-3"><span class="bg-indigo-950 text-indigo-300 border border-indigo-700/50 px-2 py-0.5 rounded text-xs font-semibold">${a.categoria}</span></td>
+            <td class="py-3 px-3">
+              <div class="font-medium text-slate-100">${a.titulo}</div>
+              <div class="text-xs text-slate-400">Alvo: ${a.nomeComponente} • ${a.mitigacoes.length} mitigação(ões)</div>
+            </td>
+            <td class="py-3 px-3 font-semibold text-xs">${a.risco} (${a.probabilidade}x${a.impacto})</td>
+            <td class="py-3 px-3 text-xs">${a.status}</td>
+            <td class="py-3 px-3 text-right space-x-1">
+              <button onclick="mitigarAmeaca('${a.id}')" class="bg-emerald-700 hover:bg-emerald-600 px-2 py-1 rounded text-xs">+ Mitigar</button>
+              <button onclick="concluirAmeaca('${a.id}', ${a.probabilidade}, ${a.impacto})" class="bg-sky-700 hover:bg-sky-600 px-2 py-1 rounded text-xs">Validar</button>
+              <button onclick="excluirAmeaca('${a.id}')" class="bg-rose-800 hover:bg-rose-700 px-2 py-1 rounded text-xs">X</button>
+            </td>
+          </tr>
+        `).join("");
+      } catch (e) { showAlert(e.message); }
+    }
+
+    async function adicionarComponente() {
+      try {
+        const nome = document.getElementById("compNome").value;
+        const tipo = document.getElementById("compTipo").value;
+        const fronteiraConfianca = document.getElementById("compFronteira").value;
+        await apiFetch(`/projetos/${projetoAtualId}/componentes`, {
+          method: "POST",
+          body: JSON.stringify({ nome, tipo, fronteiraConfianca, projetoId: projetoAtualId })
+        });
+        document.getElementById("compNome").value = "";
+        abrirProjeto(projetoAtualId);
+        carregarProjetos();
+      } catch (e) { showAlert(e.message); }
+    }
+
+    async function executarMotorStride() {
+      try {
+        await apiFetch(`/projetos/${projetoAtualId}/analisar-stride`, { method: "POST" });
+        showAlert("Análise STRIDE concluída! Ameaças identificadas automaticamente.", false);
+        abrirProjeto(projetoAtualId);
+        carregarProjetos();
+      } catch (e) { showAlert(e.message); }
+    }
+
+    async function mitigarAmeaca(id) {
+      const controle = prompt("Descreva a contramedida técnica (Ex: Implementar Rate Limit e WAF):");
+      if (!controle) return;
+      try {
+        await apiFetch(`/ameacas/${id}/mitigacoes`, {
+          method: "POST",
+          body: JSON.stringify({ descricaoControle: controle, responsavel: "Arquiteto", aprovada: true })
+        });
+        showAlert("Contramedida aprovada vinculada!", false);
+        abrirProjeto(projetoAtualId);
+      } catch (e) { showAlert(e.message); }
+    }
+
+    async function concluirAmeaca(id, prob, imp) {
+      try {
+        await apiFetch(`/ameacas/${id}`, {
+          method: "PUT",
+          body: JSON.stringify({ titulo: "", descricao: "", probabilidade: prob, impacto: imp, status: "Mitigada" })
+        });
+        showAlert("Ameaça marcada como Mitigada!", false);
+        abrirProjeto(projetoAtualId);
+      } catch (e) { showAlert(e.message); }
+    }
+
+    async function excluirAmeaca(id) {
+      try {
+        await apiFetch(`/ameacas/${id}`, { method: "DELETE" });
+        abrirProjeto(projetoAtualId);
+        carregarProjetos();
+      } catch (e) { showAlert(e.message); }
+    }
+
+    async function excluirProjetoAtual() {
+      try {
+        await apiFetch(`/projetos/${projetoAtualId}`, { method: "DELETE" });
+        document.getElementById("detalheProjeto").classList.add("hidden");
+        carregarProjetos();
+      } catch (e) { showAlert(e.message); }
+    }
+
+    iniciarSessao();
+  </script>
+</body>
+</html>
