@@ -70,4 +70,28 @@ Sobe automaticamente o container do **SQL Server 2022** e a aplicação **Stride
 docker-compose up -d --build
 ```
 
-* **Interface Web:** `
+* **Interface Web:** `http://localhost:5000`
+* **Swagger UI (API):** `http://localhost:5000/swagger`
+
+### Opção 2: Execução Local via .NET CLI
+Certifique-se de ter uma instância do SQL Server configurada em `src/StrideGuard.API/appsettings.json` e execute:
+
+```bash
+dotnet restore
+dotnet run --project src/StrideGuard.API
+```
+
+### Credenciais Padrão (Seed Automático)
+Ao iniciar pela primeira vez, o `DbSeeder` cria automaticamente um usuário arquiteto e um projeto modelo (*API Gateway de Pagamentos PIX*):
+* **E-mail:** `arquiteto@strideguard.com`
+* **Senha:** `Stride@123`
+
+---
+
+## 🧪 Testes Automatizados
+
+Para executar a suíte de testes unitários que valida o motor STRIDE, o cálculo da matriz de risco (RN02) e as travas de domínio (RN03):
+
+```bash
+dotnet test
+```
