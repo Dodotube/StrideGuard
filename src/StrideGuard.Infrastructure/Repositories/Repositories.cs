@@ -42,7 +42,8 @@ public class ProjetoRepository(AppDbContext db) : IProjetoRepository
 
     public async Task AtualizarAsync(Projeto projeto)
     {
-        db.Projetos.Update(projeto);
+        if (db.Entry(projeto).State == EntityState.Detached)
+            db.Projetos.Update(projeto);
         await db.SaveChangesAsync();
     }
 
@@ -88,9 +89,16 @@ public class AmeacaRepository(AppDbContext db) : IAmeacaRepository
         await db.SaveChangesAsync();
     }
 
+    public async Task AdicionarMitigacaoAsync(Mitigacao mitigacao)
+    {
+        db.Mitigacoes.Add(mitigacao);
+        await db.SaveChangesAsync();
+    }
+
     public async Task AtualizarAsync(Ameaca ameaca)
     {
-        db.Ameacas.Update(ameaca);
+        if (db.Entry(ameaca).State == EntityState.Detached)
+            db.Ameacas.Update(ameaca);
         await db.SaveChangesAsync();
     }
 

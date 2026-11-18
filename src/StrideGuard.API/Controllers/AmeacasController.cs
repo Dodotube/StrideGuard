@@ -48,7 +48,7 @@ public class AmeacasController(
 
         var mitigacao = new Mitigacao(req.DescricaoControle, req.Responsavel, req.Aprovada, ameaca.Id);
         ameaca.AdicionarMitigacao(mitigacao);
-        await ameacaRepo.AtualizarAsync(ameaca);
+        await ameacaRepo.AdicionarMitigacaoAsync(mitigacao);
 
         return Ok(MotorGeradorStrideService.MapToResponse(ameaca, string.Empty));
     }

@@ -29,6 +29,7 @@ public interface IAmeacaRepository
     Task<Ameaca?> ObterPorIdComMitigacoesAsync(Guid id);
     Task AdicionarAsync(Ameaca ameaca);
     Task AdicionarVariasAsync(IEnumerable<Ameaca> ameacas);
+    Task AdicionarMitigacaoAsync(Mitigacao mitigacao);
     Task AtualizarAsync(Ameaca ameaca);
     Task RemoverAsync(Ameaca ameaca);
 }

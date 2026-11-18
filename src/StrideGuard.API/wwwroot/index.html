@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StrideGuard | Threat Modeling STRIDE</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @media print {
+      body { background: #fff !important; color: #0f172a !important; }
+      .no-print { display: none !important; }
+      .print-card { border: 1px solid #cbd5e1 !important; background: #fff !important; color: #0f172a !important; }
+    }
+  </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
 
-  <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+  <nav class="no-print bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-wrap justify-between items-center gap-3">
     <div class="flex items-center gap-3">
       <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2.5 py-1 rounded font-bold text-sm">STRIDE</span>
       <h1 class="text-xl font-bold tracking-tight">StrideGuard <span class="text-slate-400 font-normal text-sm">| Threat Modeling Platform</span></h1>
@@ -20,7 +27,7 @@
     </div>
   </nav>
 
-  <div id="alertBox" class="hidden max-w-5xl mx-auto mt-4 px-4">
+  <div id="alertBox" class="no-print hidden max-w-6xl mx-auto mt-4 px-6">
     <div id="alertContent" class="p-4 rounded-lg border text-sm font-medium"></div>
   </div>
 
@@ -54,7 +61,8 @@
   </main>
 
   <main id="appSection" class="hidden max-w-6xl mx-auto p-6 space-y-6">
-    <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex flex-wrap gap-3 items-end">
+    <!-- Criação de Projeto -->
+    <div class="no-print bg-slate-900 border border-slate-800 p-5 rounded-xl flex flex-wrap gap-3 items-end">
       <div class="flex-1 min-w-[200px]">
         <label class="block text-xs text-slate-400 mb-1">Novo Projeto / Arquitetura</label>
         <input id="projNome" type="text" placeholder="Ex: Portal de Telemedicina" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
@@ -66,25 +74,48 @@
       <button onclick="criarProjeto()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg text-sm font-semibold">+ Criar Projeto</button>
     </div>
 
-    <div id="listaProjetos" class="grid md:grid-cols-3 gap-4"></div>
+    <!-- Lista de Projetos -->
+    <div id="listaProjetos" class="no-print grid md:grid-cols-3 gap-4"></div>
 
-    <div id="detalheProjeto" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-xl space-y-6">
-      <div class="flex flex-wrap justify-between items-center border-b border-slate-800 pb-4 gap-4">
-        <div>
-          <h3 id="detTitulo" class="text-xl font-bold text-emerald-400"></h3>
+    <!-- Detalhe do Projeto -->
+    <div id="detalheProjeto" class="print-card hidden bg-slate-900 border border-slate-800 p-6 rounded-xl space-y-6">
+      <!-- Cabeçalho do Projeto -->
+      <div class="flex flex-wrap justify-between items-start border-b border-slate-800 pb-4 gap-4">
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-3">
+            <h3 id="detTitulo" class="text-2xl font-bold text-emerald-400"></h3>
+            <span id="badgeRelease" class="text-xs font-bold px-2.5 py-1 rounded-full border"></span>
+          </div>
           <p id="detDesc" class="text-sm text-slate-400"></p>
+          <div id="detMetricas" class="flex flex-wrap gap-2 pt-1 text-xs"></div>
         </div>
-        <div class="flex gap-2">
+        <div class="no-print flex flex-wrap gap-2">
           <button onclick="executarMotorStride()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
             ⚡ Executar Motor STRIDE
           </button>
+          <button onclick="abrirModalNovaAmeaca()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-2 rounded-lg text-sm font-medium text-amber-300">
+            + Ameaça Manual
+          </button>
+          <button onclick="exportarRelatorio()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-2 rounded-lg text-sm font-medium text-sky-300">
+            📄 Relatório
+          </button>
           <button onclick="excluirProjetoAtual()" class="bg-rose-900/60 hover:bg-rose-700 border border-rose-700 px-3 py-2 rounded-lg text-sm">
-            Excluir Projeto
+            Excluir
           </button>
         </div>
       </div>
 
-      <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex flex-wrap gap-3 items-end">
+      <!-- Radar das 6 Dimensões STRIDE -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Cobertura por Taxonomia STRIDE (clique para filtrar)</span>
+          <button id="btnLimparFiltroStride" onclick="filtrarPorCategoria(null)" class="hidden text-xs text-emerald-400 hover:underline">Mostrar todas</button>
+        </div>
+        <div id="strideRadar" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5"></div>
+      </div>
+
+      <!-- Cadastro de Componente -->
+      <div class="no-print bg-slate-950 p-4 rounded-lg border border-slate-800 flex flex-wrap gap-3 items-end">
         <div class="flex-1 min-w-[180px]">
           <label class="block text-xs text-slate-400 mb-1">Componente Arquitetural</label>
           <input id="compNome" type="text" placeholder="Ex: Auth Service / SQL Server" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm" />
@@ -110,19 +141,30 @@
         <button onclick="adicionarComponente()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm font-medium">+ Componente</button>
       </div>
 
-      <div id="listaComponentes" class="flex flex-wrap gap-2"></div>
-
+      <!-- Mapa Visual de Fronteiras de Confiança (Trust Boundaries) -->
       <div>
-        <h4 class="font-semibold mb-3 text-slate-200">Ameaças Identificadas (STRIDE)</h4>
+        <span class="block text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">Mapa Arquitetural & Fronteiras de Confiança (Trust Boundaries)</span>
+        <div id="mapaArquitetura" class="grid md:grid-cols-3 gap-3"></div>
+      </div>
+
+      <!-- Tabela de Ameaças -->
+      <div>
+        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+          <h4 class="font-semibold text-slate-200">Ameaças Identificadas (STRIDE) <span id="labelFiltroAtivo" class="text-xs font-normal text-indigo-400 ml-1"></span></h4>
+          <label class="no-print flex items-center gap-2 text-xs text-slate-300 cursor-pointer bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg">
+            <input id="filtroOcultarMitigadas" type="checkbox" onchange="renderizarTabelaAmeacas()" class="rounded bg-slate-900 border-slate-700 text-emerald-500" />
+            Ocultar ameaças já mitigadas
+          </label>
+        </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm border-collapse">
             <thead>
               <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase">
                 <th class="py-2 px-3">Categoria</th>
-                <th class="py-2 px-3">Ameaça / Componente</th>
+                <th class="py-2 px-3">Ameaça / Componente / Mitigações</th>
                 <th class="py-2 px-3">Risco</th>
                 <th class="py-2 px-3">Status</th>
-                <th class="py-2 px-3 text-right">Ações</th>
+                <th class="no-print py-2 px-3 text-right">Ações</th>
               </tr>
             </thead>
             <tbody id="tabelaAmeacas" class="divide-y divide-slate-800"></tbody>
@@ -132,10 +174,95 @@
     </div>
   </main>
 
+  <!-- Modal de Mitigação -->
+  <div id="modalMitigacao" class="no-print hidden fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-700 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <h3 class="text-lg font-bold text-emerald-400">Adicionar Contramedida (Mitigação)</h3>
+      <p id="modalAmeacaTitulo" class="text-xs text-slate-400"></p>
+      <div>
+        <label class="block text-xs uppercase text-slate-400 mb-1">Descrição do Controle Técnico</label>
+        <input id="mitControle" type="text" placeholder="Ex: Consultas parametrizadas e RBAC no banco" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase text-slate-400 mb-1">Responsável Técnico</label>
+        <input id="mitResponsavel" type="text" value="Paulo Aguiar" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <label class="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+        <input id="mitAprovada" type="checkbox" checked class="rounded bg-slate-950 border-slate-700 text-emerald-500" />
+        Contramedida Aprovada (permite validar como Mitigada - RN03)
+      </label>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="fecharModalMitigacao()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+        <button onclick="salvarMitigacao()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-semibold">Salvar Mitigação</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Nova Ameaça Manual -->
+  <div id="modalNovaAmeaca" class="no-print hidden fixed inset-0 bg-black/75 flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-700 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <h3 class="text-lg font-bold text-amber-400">Registrar Ameaça Manual (STRIDE)</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs uppercase text-slate-400 mb-1">Componente Alvo</label>
+          <select id="novaAmComp" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm"></select>
+        </div>
+        <div>
+          <label class="block text-xs uppercase text-slate-400 mb-1">Categoria STRIDE (RN01)</label>
+          <select id="novaAmCat" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm">
+            <option value="Spoofing">Spoofing</option>
+            <option value="Tampering">Tampering</option>
+            <option value="Repudiation">Repudiation</option>
+            <option value="InformationDisclosure">Information Disclosure</option>
+            <option value="DenialOfService">Denial of Service</option>
+            <option value="ElevationOfPrivilege">Elevation of Privilege</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs uppercase text-slate-400 mb-1">Título da Ameaça</label>
+        <input id="novaAmTitulo" type="text" placeholder="Ex: Sequestro de Sessão via Token sem Expiração" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs uppercase text-slate-400 mb-1">Descrição Técnica</label>
+        <input id="novaAmDesc" type="text" placeholder="Detalhe o vetor de ataque e o ativo afetado" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs uppercase text-slate-400 mb-1">Probabilidade (1 a 5)</label>
+          <input id="novaAmProb" type="number" min="1" max="5" value="4" oninput="atualizarPreviewRisco()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs uppercase text-slate-400 mb-1">Impacto (1 a 5)</label>
+          <input id="novaAmImp" type="number" min="1" max="5" value="5" oninput="atualizarPreviewRisco()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+        </div>
+      </div>
+      <div id="previewRiscoBox" class="text-xs bg-slate-950 border border-slate-800 px-3 py-2 rounded-lg text-slate-300"></div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="fecharModalNovaAmeaca()" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+        <button onclick="salvarNovaAmeaca()" class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-lg text-sm font-semibold text-slate-950">Adicionar Ameaça</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const API_URL = "/api";
     let isRegister = false;
     let projetoAtualId = null;
+    let projetoAtualDetalhe = null;
+    let ameacaMitigandoId = null;
+    let ameacasAtuais = [];
+    let componentesAtuais = [];
+    let categoriaFiltro = null;
+
+    const STRIDE_META = [
+      { key: "Spoofing", letra: "S", nome: "Spoofing", desc: "Falsificação de Identidade" },
+      { key: "Tampering", letra: "T", nome: "Tampering", desc: "Adulteração de Dados" },
+      { key: "Repudiation", letra: "R", nome: "Repudiation", desc: "Repúdio / Falta de Logs" },
+      { key: "InformationDisclosure", letra: "I", nome: "Info Disclosure", desc: "Vazamento de Dados" },
+      { key: "DenialOfService", letra: "D", nome: "Denial of Service", desc: "Negação de Serviço" },
+      { key: "ElevationOfPrivilege", letra: "E", nome: "Elevation Priv.", desc: "Elevação de Privilégio" }
+    ];
 
     function showAlert(msg, isError = true) {
       const box = document.getElementById("alertBox");
@@ -229,33 +356,179 @@
       try {
         projetoAtualId = id;
         const det = await apiFetch(`/projetos/${id}`);
+        projetoAtualDetalhe = det;
+        ameacasAtuais = det.ameacas;
+        componentesAtuais = det.componentes;
+
         document.getElementById("detalheProjeto").classList.remove("hidden");
         document.getElementById("detTitulo").textContent = det.nome;
         document.getElementById("detDesc").textContent = det.descricao;
 
-        document.getElementById("listaComponentes").innerHTML = det.componentes.map(c => `
-          <span class="bg-slate-800 border border-slate-700 text-xs px-3 py-1.5 rounded-full">
-            <strong>${c.nome}</strong> (${c.tipo} • ${c.fronteiraConfianca})
-          </span>
-        `).join("");
+        const total = det.ameacas.length;
+        const mitigadas = det.ameacas.filter(a => a.status === "Mitigada").length;
+        const abertas = total - mitigadas;
+        const criticasAbertas = det.ameacas.filter(a => a.status !== "Mitigada" && (a.risco === "Critico" || a.risco === "Alto")).length;
+        const pct = total > 0 ? Math.round((mitigadas / total) * 100) : 0;
 
-        document.getElementById("tabelaAmeacas").innerHTML = det.ameacas.map(a => `
+        const badgeRelease = document.getElementById("badgeRelease");
+        if (total === 0) {
+          badgeRelease.className = "text-xs font-bold px-2.5 py-1 rounded-full border bg-slate-800 text-slate-300 border-slate-700";
+          badgeRelease.textContent = "AGUARDANDO ANÁLISE";
+        } else if (criticasAbertas > 0) {
+          badgeRelease.className = "text-xs font-bold px-2.5 py-1 rounded-full border bg-rose-950 text-rose-300 border-rose-700";
+          badgeRelease.textContent = `NO-GO • ${criticasAbertas} Risco(s) Alto/Crítico Aberto(s)`;
+        } else {
+          badgeRelease.className = "text-xs font-bold px-2.5 py-1 rounded-full border bg-emerald-950 text-emerald-300 border-emerald-700";
+          badgeRelease.textContent = "GO • Riscos Críticos Controlados";
+        }
+
+        document.getElementById("detMetricas").innerHTML = `
+          <span class="bg-slate-800 border border-slate-700 text-slate-300 px-2.5 py-0.5 rounded">Total: ${total}</span>
+          <span class="bg-emerald-950 border border-emerald-700/50 text-emerald-300 px-2.5 py-0.5 rounded">✅ Mitigadas: ${mitigadas} (${pct}%)</span>
+          <span class="bg-amber-950 border border-amber-700/50 text-amber-300 px-2.5 py-0.5 rounded">⚠️ Pendentes: ${abertas}</span>
+        `;
+
+        renderizarRadarStride();
+        renderizarMapaArquitetura();
+        renderizarTabelaAmeacas();
+      } catch (e) { showAlert(e.message); }
+    }
+
+    function renderizarRadarStride() {
+      const container = document.getElementById("strideRadar");
+      document.getElementById("btnLimparFiltroStride").classList.toggle("hidden", !categoriaFiltro);
+
+      container.innerHTML = STRIDE_META.map(s => {
+        const itens = ameacasAtuais.filter(a => a.categoria === s.key);
+        const abertas = itens.filter(a => a.status !== "Mitigada").length;
+        const ativo = categoriaFiltro === s.key;
+        const borderClass = ativo
+          ? "border-indigo-400 bg-indigo-950/60"
+          : abertas > 0
+            ? "border-amber-800/60 bg-slate-950 hover:border-amber-500/60"
+            : itens.length > 0
+              ? "border-emerald-800/60 bg-slate-950 hover:border-emerald-500/60"
+              : "border-slate-800 bg-slate-950/60 hover:border-slate-700";
+
+        return `
+          <div onclick="filtrarPorCategoria('${s.key}')" class="cursor-pointer border ${borderClass} p-3 rounded-lg transition">
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-black text-indigo-400">${s.letra}</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded ${abertas > 0 ? "bg-amber-950 text-amber-300" : "bg-slate-800 text-slate-400"}">${itens.length}</span>
+            </div>
+            <div class="text-xs font-semibold text-slate-200 mt-1">${s.nome}</div>
+            <div class="text-[11px] text-slate-400 truncate">${s.desc}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function filtrarPorCategoria(cat) {
+      categoriaFiltro = (categoriaFiltro === cat) ? null : cat;
+      document.getElementById("labelFiltroAtivo").textContent = categoriaFiltro ? `(Filtrado por: ${categoriaFiltro})` : "";
+      renderizarRadarStride();
+      renderizarTabelaAmeacas();
+    }
+
+    function renderizarMapaArquitetura() {
+      const zonas = [
+        { key: "InternetPublica", titulo: "🌐 Internet Pública", sub: "Zona Não Confiável (Externa)", cor: "border-rose-900/60 bg-rose-950/10" },
+        { key: "Dmz", titulo: "🛡️ DMZ / Borda", sub: "Zona Desmilitarizada (Gateway / IdP)", cor: "border-amber-900/60 bg-amber-950/10" },
+        { key: "RedeInterna", titulo: "🔒 Rede Interna", sub: "Zona Confiável (Core / Dados)", cor: "border-emerald-900/60 bg-emerald-950/10" }
+      ];
+
+      document.getElementById("mapaArquitetura").innerHTML = zonas.map(z => {
+        const comps = componentesAtuais.filter(c => c.fronteiraConfianca === z.key);
+        const cards = comps.length === 0
+          ? `<div class="text-xs text-slate-500 italic py-4 text-center">Nenhum componente nesta zona</div>`
+          : comps.map(c => {
+              const amComp = ameacasAtuais.filter(a => a.nomeComponente === c.nome);
+              const abertas = amComp.filter(a => a.status !== "Mitigada").length;
+              const statusBadge = amComp.length === 0
+                ? `<span class="text-[11px] text-slate-400">Sem ameaças</span>`
+                : abertas > 0
+                  ? `<span class="text-[11px] bg-rose-950 text-rose-300 border border-rose-800 px-2 py-0.5 rounded-full">⚠️ ${abertas} aberta(s)</span>`
+                  : `<span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full">🛡️ Blindado</span>`;
+
+              return `
+                <div class="bg-slate-900 border border-slate-700/80 p-2.5 rounded-lg flex justify-between items-center gap-2">
+                  <div>
+                    <div class="text-xs font-bold text-slate-100">${c.nome}</div>
+                    <div class="text-[11px] text-slate-400">${c.tipo}</div>
+                  </div>
+                  ${statusBadge}
+                </div>
+              `;
+            }).join("");
+
+        return `
+          <div class="border-2 border-dashed ${z.cor} rounded-xl p-3.5 space-y-2.5">
+            <div class="border-b border-slate-800/80 pb-2">
+              <div class="text-xs font-bold text-slate-200">${z.titulo}</div>
+              <div class="text-[11px] text-slate-400">${z.sub}</div>
+            </div>
+            <div class="space-y-2">${cards}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderizarTabelaAmeacas() {
+      const ocultar = document.getElementById("filtroOcultarMitigadas").checked;
+      let lista = ameacasAtuais;
+      if (ocultar) lista = lista.filter(a => a.status !== "Mitigada");
+      if (categoriaFiltro) lista = lista.filter(a => a.categoria === categoriaFiltro);
+
+      if (lista.length === 0) {
+        document.getElementById("tabelaAmeacas").innerHTML = `
+          <tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">Nenhuma ameaça encontrada para os filtros selecionados.</td></tr>
+        `;
+        return;
+      }
+
+      document.getElementById("tabelaAmeacas").innerHTML = lista.map(a => {
+        const isMitigada = a.status === "Mitigada";
+        const badgeStatus = isMitigada
+          ? "bg-emerald-950 text-emerald-300 border-emerald-700/50"
+          : a.status === "EmAnalise"
+            ? "bg-amber-950 text-amber-300 border-amber-700/50"
+            : "bg-slate-800 text-slate-300 border-slate-700";
+
+        const riscoColor = a.risco === "Critico"
+          ? "text-rose-400"
+          : a.risco === "Alto"
+            ? "text-amber-400"
+            : "text-slate-300";
+
+        const btnValidar = isMitigada
+          ? `<span class="inline-block bg-emerald-950/80 text-emerald-400 border border-emerald-700/50 px-2 py-1 rounded text-xs font-semibold cursor-default">✓ Validada</span>`
+          : `<button onclick="concluirAmeaca('${a.id}', ${a.probabilidade}, ${a.impacto})" class="bg-sky-700 hover:bg-sky-600 px-2 py-1 rounded text-xs font-medium">Validar</button>`;
+
+        const listaMits = a.mitigacoes.length > 0
+          ? `<div class="mt-1.5 space-y-1">${a.mitigacoes.map(m =>
+              `<div class="text-xs text-emerald-300/90 bg-emerald-950/40 border border-emerald-800/40 px-2 py-0.5 rounded">
+                🛡️ ${m.descricaoControle} <span class="text-slate-400">(${m.responsavel}${m.aprovada ? " • Aprovada" : " • Pendente"})</span>
+              </div>`).join("")}</div>`
+          : "";
+
+        return `
           <tr>
-            <td class="py-3 px-3"><span class="bg-indigo-950 text-indigo-300 border border-indigo-700/50 px-2 py-0.5 rounded text-xs font-semibold">${a.categoria}</span></td>
-            <td class="py-3 px-3">
+            <td class="py-3 px-3 align-top"><span class="bg-indigo-950 text-indigo-300 border border-indigo-700/50 px-2 py-0.5 rounded text-xs font-semibold">${a.categoria}</span></td>
+            <td class="py-3 px-3 align-top">
               <div class="font-medium text-slate-100">${a.titulo}</div>
               <div class="text-xs text-slate-400">Alvo: ${a.nomeComponente} • ${a.mitigacoes.length} mitigação(ões)</div>
+              ${listaMits}
             </td>
-            <td class="py-3 px-3 font-semibold text-xs">${a.risco} (${a.probabilidade}x${a.impacto})</td>
-            <td class="py-3 px-3 text-xs">${a.status}</td>
-            <td class="py-3 px-3 text-right space-x-1">
-              <button onclick="mitigarAmeaca('${a.id}')" class="bg-emerald-700 hover:bg-emerald-600 px-2 py-1 rounded text-xs">+ Mitigar</button>
-              <button onclick="concluirAmeaca('${a.id}', ${a.probabilidade}, ${a.impacto})" class="bg-sky-700 hover:bg-sky-600 px-2 py-1 rounded text-xs">Validar</button>
+            <td class="py-3 px-3 align-top font-semibold text-xs ${riscoColor}">${a.risco} (${a.probabilidade}x${a.impacto})</td>
+            <td class="py-3 px-3 align-top"><span class="border px-2 py-0.5 rounded text-xs ${badgeStatus}">${a.status}</span></td>
+            <td class="no-print py-3 px-3 align-top text-right space-x-1 whitespace-nowrap">
+              <button onclick="abrirModalMitigacao('${a.id}')" class="bg-emerald-700 hover:bg-emerald-600 px-2 py-1 rounded text-xs">+ Mitigar</button>
+              ${btnValidar}
               <button onclick="excluirAmeaca('${a.id}')" class="bg-rose-800 hover:bg-rose-700 px-2 py-1 rounded text-xs">X</button>
             </td>
           </tr>
-        `).join("");
-      } catch (e) { showAlert(e.message); }
+        `;
+      }).join("");
     }
 
     async function adicionarComponente() {
@@ -282,16 +555,92 @@
       } catch (e) { showAlert(e.message); }
     }
 
-    async function mitigarAmeaca(id) {
-      const controle = prompt("Descreva a contramedida técnica (Ex: Implementar Rate Limit e WAF):");
-      if (!controle) return;
+    function abrirModalMitigacao(id) {
+      const am = ameacasAtuais.find(x => x.id === id);
+      ameacaMitigandoId = id;
+      document.getElementById("modalAmeacaTitulo").textContent = am ? `Ameaça: ${am.titulo}` : "";
+      document.getElementById("mitControle").value = "";
+      document.getElementById("mitAprovada").checked = true;
+      document.getElementById("modalMitigacao").classList.remove("hidden");
+    }
+
+    function fecharModalMitigacao() {
+      document.getElementById("modalMitigacao").classList.add("hidden");
+      ameacaMitigandoId = null;
+    }
+
+    async function salvarMitigacao() {
+      const descricaoControle = document.getElementById("mitControle").value;
+      const responsavel = document.getElementById("mitResponsavel").value;
+      const aprovada = document.getElementById("mitAprovada").checked;
+
+      if (!descricaoControle.trim()) {
+        showAlert("Informe a descrição do controle técnico.");
+        return;
+      }
+
       try {
-        await apiFetch(`/ameacas/${id}/mitigacoes`, {
+        await apiFetch(`/ameacas/${ameacaMitigandoId}/mitigacoes`, {
           method: "POST",
-          body: JSON.stringify({ descricaoControle: controle, responsavel: "Arquiteto", aprovada: true })
+          body: JSON.stringify({ descricaoControle, responsavel, aprovada })
         });
-        showAlert("Contramedida aprovada vinculada!", false);
+        fecharModalMitigacao();
+        showAlert("Contramedida vinculada com sucesso! Clique em Validar para concluir.", false);
         abrirProjeto(projetoAtualId);
+      } catch (e) { showAlert(e.message); }
+    }
+
+    function abrirModalNovaAmeaca() {
+      if (componentesAtuais.length === 0) {
+        showAlert("Cadastre ao menos um componente antes de registrar uma ameaça.");
+        return;
+      }
+      document.getElementById("novaAmComp").innerHTML = componentesAtuais.map(c =>
+        `<option value="${c.id}">${c.nome} (${c.fronteiraConfianca})</option>`
+      ).join("");
+      document.getElementById("novaAmTitulo").value = "";
+      document.getElementById("novaAmDesc").value = "";
+      document.getElementById("novaAmProb").value = 4;
+      document.getElementById("novaAmImp").value = 5;
+      atualizarPreviewRisco();
+      document.getElementById("modalNovaAmeaca").classList.remove("hidden");
+    }
+
+    function fecharModalNovaAmeaca() {
+      document.getElementById("modalNovaAmeaca").classList.add("hidden");
+    }
+
+    function atualizarPreviewRisco() {
+      const p = parseInt(document.getElementById("novaAmProb").value) || 1;
+      const i = parseInt(document.getElementById("novaAmImp").value) || 1;
+      const score = p * i;
+      const nivel = score >= 20 ? "CRÍTICO" : score >= 15 ? "ALTO" : score >= 7 ? "MÉDIO" : "BAIXO";
+      document.getElementById("previewRiscoBox").innerHTML =
+        `Matriz de Risco Automática (RN02): <strong>${p} × ${i} = ${score} pontos (${nivel})</strong>`;
+    }
+
+    async function salvarNovaAmeaca() {
+      const componenteId = document.getElementById("novaAmComp").value;
+      const categoria = document.getElementById("novaAmCat").value;
+      const titulo = document.getElementById("novaAmTitulo").value;
+      const descricao = document.getElementById("novaAmDesc").value;
+      const probabilidade = parseInt(document.getElementById("novaAmProb").value);
+      const impacto = parseInt(document.getElementById("novaAmImp").value);
+
+      if (!titulo.trim()) {
+        showAlert("Informe o título da ameaça.");
+        return;
+      }
+
+      try {
+        await apiFetch("/ameacas", {
+          method: "POST",
+          body: JSON.stringify({ componenteId, categoria, titulo, descricao, probabilidade, impacto })
+        });
+        fecharModalNovaAmeaca();
+        showAlert("Ameaça manual registrada com sucesso!", false);
+        abrirProjeto(projetoAtualId);
+        carregarProjetos();
       } catch (e) { showAlert(e.message); }
     }
 
@@ -301,7 +650,7 @@
           method: "PUT",
           body: JSON.stringify({ titulo: "", descricao: "", probabilidade: prob, impacto: imp, status: "Mitigada" })
         });
-        showAlert("Ameaça marcada como Mitigada!", false);
+        showAlert("Ameaça validada e marcada como Mitigada!", false);
         abrirProjeto(projetoAtualId);
       } catch (e) { showAlert(e.message); }
     }
@@ -320,6 +669,10 @@
         document.getElementById("detalheProjeto").classList.add("hidden");
         carregarProjetos();
       } catch (e) { showAlert(e.message); }
+    }
+
+    function exportarRelatorio() {
+      window.print();
     }
 
     iniciarSessao();
